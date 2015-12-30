@@ -1,0 +1,6 @@
+[ceph]
+name=Ceph for RHEL/ CentOS $releasever - $basearch
+baseurl=http://115.182.93.170/ceph/el6/update/
+enabled=1
+gpgcheck=0
+
