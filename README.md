@@ -58,11 +58,11 @@ sh expend-osd.sh [-c|--confserver] CONFSERVER [-s|--osdserver] OSDSERVER [-D|--d
 - -s|--osdserver OSDSERVER
 	- `必填参数`。要安装osd服务器的ip。
 - -D|--diskprofile [raid0|noraid]
-        - `必填参数`。如果磁盘做了RAID0，则参数为raid0;否则参数为noraid，磁盘会去做lvm。
+	- `必填参数`。如果磁盘做了RAID0，则参数为raid0;否则参数为noraid，磁盘会去做lvm。
 - -N|--no-purge         
-        - 如果是干净环境，加上此参数，可不做purge data的操作
+	- 如果是干净环境，加上此参数，可不做purge data的操作
 - -W|--withtranscode    
-        - 如果需要腾出一块硬盘用于部署转码，加上此参数。（此参数不会去mount /dev/sdb 或 /dev/vg/lv1）
+	- 如果需要腾出一块硬盘用于部署转码，加上此参数。（此参数不会去mount /dev/sdb 或 /dev/vg/lv1）
 - -H|--hostname MONHOSTNAME
 	- 如果已有集群monitor服务器另有hostname，需添加此参数
 
