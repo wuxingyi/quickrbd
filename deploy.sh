@@ -8,7 +8,7 @@ function loginfo()
 
 function getConf()
 {
-	echo `cat nodeProfile.conf|grep $1|awk -F'=' '{printf $2}'`
+	echo `cat ./conf/nodeProfile.conf|grep $1|awk -F'=' '{printf $2}'`
 }
 
 function toHostname()
@@ -18,7 +18,7 @@ function toHostname()
 	echo $area-$mroom-$storage-$ipCD
 }
 
-echo "######################### Begin to DeployCeph Now! #########################" >> deployCeph.log
+loginfo "######################### Begin to DeployCeph Now! #########################" 
 TEMP=`getopt -o NWD: --long no-purge,withtranscode,diskprofile: -- "$@"`
 echo $TEMP
 eval set -- "$TEMP"
@@ -60,6 +60,7 @@ then
         exit 1;
 fi
 
+rm -rf ceph.*
 
 area=`getConf area`
 mroom=`getConf mroom`
@@ -77,7 +78,7 @@ fi
 while read  serverIP
 do
 	echo $serverIP" "`toHostname $serverIP` >> /etc/hosts
-done < ./osdhosts
+done < ./conf/osdhosts
 
 ## Create fabric.py 
 cp fabfile.org.py fabfile.py.bak
@@ -88,12 +89,12 @@ rm monhostnames osdhostnames -rf
 while read serverIP
 do
         echo `toHostname $serverIP` >> monhostnames
-done < ./monhosts
+done < ./conf/monhosts
 
 while read serverIP
 do
         echo `toHostname $serverIP` >> osdhostnames
-done < ./osdhosts
+done < ./conf/osdhosts
 
 osdnames=`cat ./osdhostnames`
 osdnamesArray=`echo $osdnames|sed "s/ /\",\"/g"|sed "s/^/env.hosts = \[\"/g"|sed "s/$/\"\]/g"`
@@ -101,7 +102,7 @@ sed -i "s/#osdhostnames#/#osdhostnames#\n$osdnamesArray/g" ./fabfile.py.bak
 
 ## Fill node profile ##
 tf=`mktemp`
-sed "s/\(.*\)=\(.*\)/\1 = \"\2\"/" ./nodeProfile.conf > $tf
+sed "s/\(.*\)=\(.*\)/\1 = \"\2\"/" ./conf/nodeProfile.conf > $tf
 sed -i "/#nodeProfile#/ r $tf" fabfile.py.bak
 
 
@@ -162,7 +163,7 @@ else
 	fab DeployOSDs -P
 fi
 ## Copy CephConf
-fab CopyCephConf
+fab CopyCephConf -P
 
 ## Install Ceph
 fab InstallWuzei -P
