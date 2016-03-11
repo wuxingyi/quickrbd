@@ -28,12 +28,13 @@ git pull git@git.letv.cn:cuixiaotian/ceph-seed.git
 - 修改当前用户目录下 .cephdeploy.conf 文件
 ```
 [ceph]
-gpgcheck=0
-enabled=1
 name=Letv ceph
-##CentOS 7 环境下将el6改成el7
-baseurl=http://s3s.lecloud.com/el6/ceph/update/
-priority=2
+#baseurl=http://s3s.lecloud.com/el6/ceph/update
+baseurl=http://s3s.lecloud.com/el7/ceph/update
+enabled=1
+gpgcheck=0
+type=repo-md
+priority=1
 ```
 
 ## 利用 Ceph-Seed 快速部署Ceph集群
