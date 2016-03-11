@@ -9,6 +9,8 @@ area=$1
 mroom=$2
 storage=$3
 
+yum install -y net-tools
+
 hostname=`cat /etc/sysconfig/network|grep HOSTNAME|awk -F"=" {'print $2'}`
 ip=`ifconfig |grep Bcast|grep Mask|awk {'print $2'}|awk -F':' {'print $2'}`
 ipc=`echo $ip |awk -F'.' {'print $3'}`

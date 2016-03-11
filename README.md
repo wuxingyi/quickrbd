@@ -13,19 +13,27 @@ Ceph-Seed 包含以下两点功能：
 **ceph.repo**:
 ```
 [ceph]
-name=Ceph for RHEL/ CentOS $releasever - $basearch
-##北京
-baseurl=http://10.200.93.170/ceph/el6/update/
-##外地
-##baseurl=http://115.182.93.170/ceph/el6/update/
-enabled=1
 gpgcheck=0
+enabled=1
+name=Letv ceph
+priority=2
+baseurl=http://s3s.lecloud.com/el7/ceph/update/
 ```
 
 - 之后执行：
 ```
 yum install fabric ceph-deploy -y
 git pull git@git.letv.cn:cuixiaotian/ceph-seed.git
+```
+- 修改当前用户目录下 .cephdeploy.conf 文件
+```
+[ceph]
+gpgcheck=0
+enabled=1
+name=Letv ceph
+##CentOS 7 环境下将el6改成el7
+baseurl=http://s3s.lecloud.com/el6/ceph/update/
+priority=2
 ```
 
 ## 利用 Ceph-Seed 快速部署Ceph集群

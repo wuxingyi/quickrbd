@@ -65,13 +65,16 @@ rm -rf ceph.*
 area=`getConf area`
 mroom=`getConf mroom`
 storage=`getConf storage`
-loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopurge="$nopurge"\ndiskprofile="$diskprofile"\nwithtranscodei="$withtranscode
+centosversion=`getConf centosversion`
+loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopurge="$nopurge"\ndiskprofile="$diskprofile"\nwithtranscodei="$withtranscode"\ncentosversion="$centosversion
 
-if [[ $area == "bj" ]]
+## Change ceph repo ##
+if [[ $centosversion == 7 ]]
 then
-	sed -i "s/115.182.93.170/10.200.93.170/g" /root/.cephdeploy.conf
-else
-	sed -i "s/10.200.93.170/115.182.93.170/g" /root/.cephdeploy.conf
+	sed -i "s/el6/el7/g" ./deployFile/ceph.repo
+elif [[ $centosversion == 6 ]]
+then
+	sed -i "s/el7/el6/g" ./deployFile/ceph.repo
 fi
 
 ## Add hostname to /etc/hosts
@@ -113,12 +116,21 @@ rm ./ceph.bootstrap-mds.keyring ./ceph.bootstrap-osd.keyring ./ceph.client.admin
 ## Add ssh auth
 fab push_key -P
 
+## Remove StrictHostKeyChecking
+grep "StrictHostKeyChecking no" /etc/ssh/ssh_config
+if [[ `echo $?` != 0 ]]
+then echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+fi
+
 ## Test Connection
 fab testecho 
+if [[ $centosversion == 7 ]]
+then
+        fab tempOS7handler -P
+fi
 
 ## Change HostName
 fab changeHostAndRepo -P
-
 osdnamelist=`cat osdhostnames`
 monsnamelist=`cat monhostnames`
 
@@ -127,6 +139,8 @@ if [[ $nopurge == "false" ]]
 then
 	loginfo "Begin to PURGE!"
 	fab PurgeCeph -P
+        echo "Purging End"
+	sleep 5
 fi
 #ceph-deploy purge $osdnamelist
 #ceph-deploy purgedata $osdnamelist        
@@ -135,7 +149,7 @@ fi
 ceph-deploy new $monsnamelist
 
 ## Create new OSD Conf
-cat /letv/deployFile/ceph.conf.ex >> ./ceph.conf
+cat ./deployFile/ceph.conf.ex >> ./ceph.conf
 if [[ $diskprofile == "raid0" ]]
 then
 	loginfo "Add RAID attr to ceph.conf!"
@@ -148,12 +162,20 @@ fab InstallCeph -P
 
 ## Install mon
 ceph-deploy mon create
-sleep 3
+echo "Mon Created,wait..."
+sleep 10
+
+cat /etc/ceph/ceph.client.admin.keyring
+if [[ `echo $?` != 0 ]]
+then
+	cat /etc/ceph/ceph.client.admin.keyring
+	sleep 10
+fi
 ## GatherKeys
 ceph-deploy gatherkeys $monsnamelist
 
 ## Install OSD
-fab prepareDisks -P
+fab prepareDisks -P -w
 if [[ $withtranscode == "true" ]]
 then 
 	loginfo "Begin to deploy OSDs withTranscode!"

@@ -1,0 +1,28 @@
+[base]
+gpgcheck=0
+enabled=1
+name=Letv Cloud's Centos7 base packages
+priority=1
+baseurl=http://10.140.75.88/base/Packages/
+
+[extras]
+gpgcheck=0
+enabled=1
+name=Letv Cloud's Centos7 extras packages
+priority=1
+baseurl=http://10.140.75.88/extras/Packages/
+
+[updates]
+gpgcheck=0
+enabled=1
+name=Letv Cloud's Centos7 updates packages
+priority=1
+baseurl=http://10.140.75.88/updates/Packages/
+
+[epel]
+gpgcheck=0
+enabled=1
+name=Letv Cloud's Centos7 epel packages
+priority=2
+baseurl=http://10.140.75.88/epel/
+
