@@ -29,11 +29,10 @@ git pull git@git.letv.cn:cuixiaotian/ceph-seed.git
 ```
 [ceph]
 name=Letv ceph
-#baseurl=http://s3s.lecloud.com/el6/ceph/update
+#baseurl=http://s3s.lecloud.com/ceph/el6/update
 baseurl=http://s3s.lecloud.com/el7/ceph/update
 enabled=1
-gpgcheck=0
-type=repo-md
+default = True
 priority=1
 ```
 

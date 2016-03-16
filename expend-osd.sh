@@ -34,6 +34,7 @@ nopurge="false"
 area=`getConf area`
 mroom=`getConf mroom`
 storage=`getConf storage`
+centosversion=`getConf centosversion`
 
 confservername=""
 withtranscode="false"
@@ -87,6 +88,9 @@ do
                         exit 1;;
         esac
 done
+
+rm -rf ceph.*
+
 if [[ $osdserver == "" ]] || [[ $confserver == "" ]] || [[ $diskprofile == "" ]]
 then
 	loginfo "Lack of Arguments ! EXIT !"
@@ -102,11 +106,21 @@ then
 	confservername=`toHostname $osdserver`
 fi
 
-if [[ $area == "bj" ]]
+## Change ceph repo ##
+if [[ $centosversion == 7 ]]
 then
-        sed -i "s/115.182.93.170/10.200.93.170/g" /root/.cephdeploy.conf
-else
-        sed -i "s/10.200.93.170/115.182.93.170/g" /root/.cephdeploy.conf
+        sed -i "s/ceph\/el6/el7\/ceph/g" ./deployFile/ceph.repo
+elif [[ $centosversion == 6 ]]
+then
+        sed -i "s/el7\/ceph/ceph\/el6/g" ./deployFile/ceph.repo
+fi
+
+if [[ $centosversion == 7 ]]
+then
+        sed -i "s/ceph\/el6/el7\/ceph/g" /root/.cephdeploy.conf
+elif [[ $centosversion == 6 ]]
+then
+        sed -i "s/el7\/ceph/ceph\/el6/g" /root/.cephdeploy.conf
 fi
 
 ## Add hostname to /etc/hosts
