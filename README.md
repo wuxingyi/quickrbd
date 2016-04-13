@@ -17,7 +17,9 @@ gpgcheck=0
 enabled=1
 name=Letv ceph
 priority=2
-baseurl=http://s3s.lecloud.com/el7/ceph/update/
+baseurl=http://s3s.lecloud.com/ceph/el6/update
+#CentOS7
+#baseurl=http://s3s.lecloud.com/el7/ceph/update/
 ```
 
 - 之后执行：
@@ -25,15 +27,17 @@ baseurl=http://s3s.lecloud.com/el7/ceph/update/
 yum install fabric ceph-deploy -y
 git pull git@git.letv.cn:cuixiaotian/ceph-seed.git
 ```
-- 修改当前用户目录下 .cephdeploy.conf 文件
+- 修改当前用户目录下 .cephdeploy.conf 文件(如果没有该文件，执行下cephdeploy命令即可)
 ```
 [ceph]
 name=Letv ceph
-#baseurl=http://s3s.lecloud.com/ceph/el6/update
-baseurl=http://s3s.lecloud.com/el7/ceph/update
+baseurl=http://s3s.lecloud.com/ceph/el6/update
+#CentOS7
+#baseurl=http://s3s.lecloud.com/el7/ceph/update
 enabled=1
 default = True
 priority=1
+gpgcheck=0
 ```
 
 ## 利用 Ceph-Seed 快速部署Ceph集群

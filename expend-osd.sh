@@ -103,7 +103,7 @@ loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopur
 osdservername=`toHostname $osdserver`
 if [[ $confservername == "" ]]
 then
-	confservername=`toHostname $osdserver`
+	confservername=`toHostname $confserver`
 fi
 
 ## Change ceph repo ##
