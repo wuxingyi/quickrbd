@@ -50,6 +50,7 @@ def changeHostAndRepo():
 def PurgeCeph():
     local('ceph-deploy purge %s' % env.host)
     local('ceph-deploy purgedata %s' % env.host)
+    run('yum remove ceph ceph-common ceph-devel librados2 libcephfs1 python-ceph librbd1 ceph-test  libcephfs_jni1 libcephfs_jni1 libradosstriper1  librbd1 ceph-radosgw  ceph-libs-compat cephfs-java  libcephfs1 rbd-fuse rbd-fuse rest-bench -y')
 
 def InstallCeph():
     local('ceph-deploy install %s' % env.host)
@@ -73,6 +74,7 @@ def prepareDisks():
     if diskprofile == "raid0":
         run('umount /dev/sd{b,b1,c,c1,d,d1,e,e1,f,f1,g,g1}')
     elif diskprofile == "noraid":
+        run('yum install -y lvm2')
         run('umount /dev/sd{b,c,d,e,f,g,h,i,j,k,l,m}')
         run('pvcreate /dev/sd{b,c,d,e,f,g,h,i,j,k,l,m}')
         run('vgcreate vg /dev/sd{b,c,d,e,f,g,h,i,j,k,l,m}')
