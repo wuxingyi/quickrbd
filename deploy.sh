@@ -66,6 +66,8 @@ area=`getConf area`
 mroom=`getConf mroom`
 storage=`getConf storage`
 centosversion=`getConf centosversion`
+ishammer=`getConf ishammer`
+
 loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopurge="$nopurge"\ndiskprofile="$diskprofile"\nwithtranscodei="$withtranscode"\ncentosversion="$centosversion
 
 ## Change ceph repo ##
@@ -83,6 +85,13 @@ then
 elif [[ $centosversion == 6 ]]
 then
         sed -i "s/el7\/ceph/ceph\/el6/g" /root/.cephdeploy.conf
+fi
+
+if [[ $ishammer == "true" ]]
+then
+	sed -i "s/\/ceph\//\/ceph-hammer\//g" /root/.cephdeploy.conf
+else
+	sed -i "s/\/ceph-hammer\//\/ceph\//g" /root/.cephdeploy.conf
 fi
 
 ## Add hostname to /etc/hosts
@@ -157,7 +166,12 @@ fi
 ceph-deploy new $monsnamelist
 
 ## Create new OSD Conf
-cat ./deployFile/ceph.conf.ex >> ./ceph.conf
+if [[ $ishammer == "true" ]]
+then 
+	cat ./deployFile/ceph-hammer.conf.ex >> ./ceph.conf
+else
+	cat ./deployFile/ceph.conf.ex >> ./ceph.conf
+fi
 if [[ $diskprofile == "raid0" ]]
 then
 	loginfo "Add RAID attr to ceph.conf!"

@@ -40,6 +40,7 @@ def updateRepoAddress():
     put("./deployFile/ceph.repo","/etc/yum.repos.d/ceph.repo")
 
 def testecho():
+    run('rpm -qa|grep redhat-lsb-core || yum install redhat-lsb-core -y')
     run('echo hello')
 
 def changeHostAndRepo():
@@ -95,7 +96,7 @@ def CopyCephConf():
     put('./ceph.client.admin.keyring','/etc/ceph/ceph.client.admin.keyring')
 
 def InstallWuzei():
-    run('yum install wuzei -y --disablerepo=* --enablerepo=ceph')
+    run('yum install wuzei -y --disablerepo=* --enablerepo=wuzei')
     run(r'''sed -i s/\\"ListenPort\\":3000/\\"ListenPort\\":8080/ /etc/wuzei/wuzei.json''')
     run('/etc/init.d/wuzei start')
 
