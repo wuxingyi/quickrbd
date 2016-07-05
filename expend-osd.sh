@@ -107,21 +107,21 @@ then
 fi
 
 ## Change ceph repo ##
-if [[ $centosversion == 7 ]]
-then
-        sed -i "s/ceph\/el6/el7\/ceph/g" ./deployFile/ceph.repo
-elif [[ $centosversion == 6 ]]
-then
-        sed -i "s/el7\/ceph/ceph\/el6/g" ./deployFile/ceph.repo
-fi
-
-if [[ $centosversion == 7 ]]
-then
-        sed -i "s/ceph\/el6/el7\/ceph/g" /root/.cephdeploy.conf
-elif [[ $centosversion == 6 ]]
-then
-        sed -i "s/el7\/ceph/ceph\/el6/g" /root/.cephdeploy.conf
-fi
+#if [[ $centosversion == 7 ]]
+#then
+#        sed -i "s/ceph\/el6/el7\/ceph/g" ./deployFile/ceph.repo
+#elif [[ $centosversion == 6 ]]
+#then
+#        sed -i "s/el7\/ceph/ceph\/el6/g" ./deployFile/ceph.repo
+#fi
+#
+#if [[ $centosversion == 7 ]]
+#then
+#        sed -i "s/ceph\/el6/el7\/ceph/g" /root/.cephdeploy.conf
+#elif [[ $centosversion == 6 ]]
+#then
+#        sed -i "s/el7\/ceph/ceph\/el6/g" /root/.cephdeploy.conf
+#fi
 
 ## Add hostname to /etc/hosts
 echo $osdserver" "$osdservername >> /etc/hosts
@@ -142,7 +142,7 @@ cp fabfile.py.bak fabfile.py
 fab changeHostAndRepo -P -H $osdserver
 
 ## Add ssh auth
-fab push_key -P -H $osdservername
+#fab push_key -P -H $osdservername
 
 ##Clean OriginData
 if [[ $nopurge == "false" ]]
@@ -172,10 +172,3 @@ fi
 
 ## Copy CephConf
 fab CopyCephConf -P -H $osdservername
-
-## Install Ceph
-fab InstallWuzei -P -H $osdservername
-fab CheckWuzei -P -H $osdservername
-
-
-

@@ -1,7 +1,7 @@
-[ceph]
-gpgcheck=0
-enabled=1
-priority=1
-default = True
+[letv-ceph]
 name=Letv ceph
-baseurl=http://s3s.lecloud.com/el7/ceph/update/
+baseurl=http://s3s.lecloud.com/ceph-jewel/el7/update
+enabled=1
+gpgcheck=0
+type=repo-md
+priority=1

@@ -24,17 +24,16 @@ def read_key_file(key_file):
         return f.read()
 
 def tempInstall():
-    run('yum -y install ceph ceph-radosgw')
+    run('yum -y install ceph')
 
 def tempOS7handler():
-    run('rm /etc/yum.repos.d/*')
     put('./deployFile/CentOS-Base.repo','/etc/yum.repos.d/CentOS-Base.repo')
     put('./deployFile/resolv.conf','/etc/resolv.conf')
 
 def changeHostname(area,mroom,storage):
-    put('./deployFile/changeNetwork.sh','/tmp/changeNetwork.sh')
-    run('chmod +x /tmp/changeNetwork.sh')
-    run('/tmp/changeNetwork.sh %s %s %s' % (area, mroom, storage))
+    put('./deployFile/hostnamectl.sh','/tmp/hostnamectl.sh')
+    run('chmod +x /tmp/hostnamectl.sh')
+    run('/tmp/hostnamectl.sh %s %s %s' % (area, mroom, storage))
 
 def updateRepoAddress():
     put("./deployFile/ceph.repo","/etc/yum.repos.d/ceph.repo")

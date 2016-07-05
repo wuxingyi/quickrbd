@@ -65,34 +65,36 @@ rm -rf ceph.*
 area=`getConf area`
 mroom=`getConf mroom`
 storage=`getConf storage`
-centosversion=`getConf centosversion`
 ishammer=`getConf ishammer`
 
-loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopurge="$nopurge"\ndiskprofile="$diskprofile"\nwithtranscodei="$withtranscode"\ncentosversion="$centosversion
+loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopurge="$nopurge"\ndiskprofile="$diskprofile"\nwithtranscodei="$withtranscode"\n"
 
+#repo is already well-defined
 ## Change ceph repo ##
-if [[ $centosversion == 7 ]]
-then
-	sed -i "s/ceph\/el6/el7\/ceph/g" ./deployFile/ceph.repo
-elif [[ $centosversion == 6 ]]
-then
-	sed -i "s/el7\/ceph/ceph\/el6/g" ./deployFile/ceph.repo
-fi
+#if [[ $centosversion == 7 ]]
+#then
+#	sed -i "s/ceph\/el6/el7\/ceph/g" ./deployFile/ceph.repo
+#elif [[ $centosversion == 6 ]]
+#then
+#	sed -i "s/el7\/ceph/ceph\/el6/g" ./deployFile/ceph.repo
+#fi
+##
+##if [[ $centosversion == 7 ]]
+##then
+##        sed -i "s/ceph\/el6/el7\/ceph/g" /root/.cephdeploy.conf
+##elif [[ $centosversion == 6 ]]
+##then
+##        sed -i "s/el7\/ceph/ceph\/el6/g" /root/.cephdeploy.conf
+##fi
+#
+#if [[ $ishammer == "true" ]]
+#then
+#	sed -i "s/\/ceph\//\/ceph-hammer\//g" /root/.cephdeploy.conf
+#else
+#	sed -i "s/\/ceph-hammer\//\/ceph\//g" /root/.cephdeploy.conf
+#fi
 
-if [[ $centosversion == 7 ]]
-then
-        sed -i "s/ceph\/el6/el7\/ceph/g" /root/.cephdeploy.conf
-elif [[ $centosversion == 6 ]]
-then
-        sed -i "s/el7\/ceph/ceph\/el6/g" /root/.cephdeploy.conf
-fi
-
-if [[ $ishammer == "true" ]]
-then
-	sed -i "s/\/ceph\//\/ceph-hammer\//g" /root/.cephdeploy.conf
-else
-	sed -i "s/\/ceph-hammer\//\/ceph\//g" /root/.cephdeploy.conf
-fi
+cp ./deployFile/.cephdeploy.conf /root/.cephdeploy.conf
 
 ## Add hostname to /etc/hosts
 while read  serverIP
@@ -131,7 +133,7 @@ cp fabfile.py.bak fabfile.py
 rm ./ceph.bootstrap-mds.keyring ./ceph.bootstrap-osd.keyring ./ceph.client.admin.keyring ./ceph.conf ceph.mon.keyring -rf
 
 ## Add ssh auth
-fab push_key -P
+#fab push_key -P
 
 ## Remove StrictHostKeyChecking
 grep "StrictHostKeyChecking no" /etc/ssh/ssh_config
@@ -141,10 +143,7 @@ fi
 
 ## Test Connection
 fab testecho 
-if [[ $centosversion == 7 ]]
-then
-        fab tempOS7handler -P
-fi
+fab tempOS7handler -P
 
 ## Change HostName
 fab changeHostAndRepo -P
@@ -208,9 +207,4 @@ else
 fi
 ## Copy CephConf
 fab CopyCephConf -P
-
-## Install Ceph
-fab InstallWuzei -P
-fab CheckWuzei
-
 loginfo "######################### DeployCeph Finish ! #########################"
