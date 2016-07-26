@@ -1,0 +1,4 @@
+# Command line options for ntpd
+OPTIONS="-g"
+NTPDATE_OPTIONS=""
+SYNC_HWCLOCK=yes

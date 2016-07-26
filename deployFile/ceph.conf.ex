@@ -15,3 +15,4 @@ osd_backfill_scan_max = 256
 journal_queue_max_bytes = 32M
 journal_max_write_bytes = 32M
 osd_heartbeat_grace = 100
+osd_heartbeat_use_min_delay_socket = True

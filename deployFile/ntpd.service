@@ -1,0 +1,14 @@
+[Unit]
+Description=Network Time Service
+After=syslog.target ntpdate.service sntp.service
+
+[Service]
+Type=forking
+EnvironmentFile=-/etc/sysconfig/ntpd
+ExecStart=/usr/sbin/ntpd -u ntp:ntp $OPTIONS
+ExecStartPre=/usr/sbin/ntpdate 0.centos.pool.ntp.org
+ExecStopPost=/usr/sbin/ntpdate 0.centos.pool.ntp.org
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -23,20 +23,17 @@ def read_key_file(key_file):
     with open(key_file) as f:
         return f.read()
 
-def tempInstall():
-    run('yum -y install ceph')
-
-def tempOS7handler():
-    put('./deployFile/CentOS-Base.repo','/etc/yum.repos.d/CentOS-Base.repo')
-    put('./deployFile/resolv.conf','/etc/resolv.conf')
-
 def changeHostname(area,mroom,storage):
     put('./deployFile/hostnamectl.sh','/tmp/hostnamectl.sh')
     run('chmod +x /tmp/hostnamectl.sh')
     run('/tmp/hostnamectl.sh %s %s %s' % (area, mroom, storage))
 
 def updateRepoAddress():
+    put('./deployFile/resolv.conf','/etc/resolv.conf')
+    run('rm /etc/yum.repos.d/letv-pkgs.repo /etc/yum.repos.d/CentOS.repo -f')
+    put('./deployFile/CentOS-Base.repo','/etc/yum.repos.d/CentOS-Base.repo')
     put("./deployFile/ceph.repo","/etc/yum.repos.d/ceph.repo")
+    put("./deployFile/watchtv.repo","/etc/yum.repos.d/watchtv.repo")
 
 def testecho():
     run('rpm -qa|grep redhat-lsb-core || yum install redhat-lsb-core -y')
@@ -53,25 +50,14 @@ def PurgeCeph():
     run('yum remove ceph ceph-common ceph-devel librados2 libcephfs1 python-ceph librbd1 ceph-test  libcephfs_jni1 libcephfs_jni1 libradosstriper1  librbd1 ceph-radosgw  ceph-libs-compat cephfs-java  libcephfs1 rbd-fuse rbd-fuse rest-bench -y')
 
 def InstallCeph():
-    local('ceph-deploy install %s' % env.host)
-    #run('yum install -y ceph striprados')
-
-def DeployOSDsWithTranscode():
-    if diskprofile == "raid0":    
-        local('ceph-deploy osd create --zap-disk %s:/dev/sdc %s:/dev/sdd %s:/dev/sde %s:/dev/sdf %s:/dev/sdg' % (env.host,env.host,env.host,env.host,env.host))
-    else:
-        local('ceph-deploy osd create --no-partition %s:/dev/vg/lv2 %s:/dev/vg/lv3 %s:/dev/vg/lv4 %s:/dev/vg/lv5 %s:/dev/vg/lv6' % (env.host,env.host,env.host,env.host,env.host))
-        local('ceph-deploy osd activate %s:/dev/vg/lv2 %s:/dev/vg/lv3 %s:/dev/vg/lv4 %s:/dev/vg/lv5 %s:/dev/vg/lv6' % (env.host,env.host,env.host,env.host,env.host))
+    run('yum install -y ceph ceph-osd')
 
 def DeployOSDs():
-    if diskprofile == "raid0":
-        local('ceph-deploy osd create --zap-disk %s:/dev/sdb %s:/dev/sdc %s:/dev/sdd %s:/dev/sde %s:/dev/sdf %s:/dev/sdg' % (env.host,env.host,env.host,env.host,env.host,env.host))
-    else:
-        local('ceph-deploy osd create --no-partition %s:/dev/vg/lv1 %s:/dev/vg/lv2 %s:/dev/vg/lv3 %s:/dev/vg/lv4 %s:/dev/vg/lv5 %s:/dev/vg/lv6' % (env.host,env.host,env.host,env.host,env.host,env.host))
-        local('ceph-deploy osd activate %s:/dev/vg/lv1 %s:/dev/vg/lv2 %s:/dev/vg/lv3 %s:/dev/vg/lv4 %s:/dev/vg/lv5 %s:/dev/vg/lv6' % (env.host,env.host,env.host,env.host,env.host,env.host))
-
+    run('/usr/sbin/ceph-disk zap /dev/sdf /dev/sdg') 
+    local('ceph-deploy osd create --zap-disk %s:/dev/sdb:/dev/sdf %s:/dev/sdc:/dev/sdf %s:/dev/sdd:/dev/sdg %s:/dev/sde:/dev/sdg' % (env.host,env.host,env.host,env.host))
 def prepareDisks():
     if diskprofile == "raid0":
+        run('umount /dev/sd{b,b1,c,c1,d,d1,e,e1,f,f1,g,g1}')
         run('umount /dev/sd{b,b1,c,c1,d,d1,e,e1,f,f1,g,g1}')
     elif diskprofile == "noraid":
         run('yum install -y lvm2')
@@ -94,14 +80,17 @@ def prepareDisks():
 def CopyCephConf():
     put('./ceph.client.admin.keyring','/etc/ceph/ceph.client.admin.keyring')
 
-def InstallWuzei():
-    run('yum install wuzei -y --disablerepo=* --enablerepo=wuzei')
-    run(r'''sed -i s/\\"ListenPort\\":3000/\\"ListenPort\\":8080/ /etc/wuzei/wuzei.json''')
-    run('/etc/init.d/wuzei start')
+def updatecephconf():
+    run('echo "osd crush update on start = false" >> /etc/ceph/ceph.conf')
 
-def RestartRW():
-    run('/etc/init.d/wuzei restart')
-    run('/letv/resin/bin/resin.sh restart')
+def updatentpconfig():
+    put('./deployFile/ntpd', '/etc/sysconfig/ntpd')
+    put('./deployFile/ntpd.service', '/etc/systemd/system/multi-user.target.wants/ntpd.service')
 
-def CheckWuzei():
-    run('curl http://127.0.0.1:8080/whoareyou')
+def updatefstab():
+    run('sed -i "\/data\/slot/d" /etc/fstab')
+
+def startdiamond():
+    run('yum install diamond -y')
+    put('./deployFile/diamond.conf', '/etc/diamond/diamond.conf')
+    run('/etc/init.d/diamond start')

@@ -19,20 +19,16 @@ function toHostname()
 }
 
 loginfo "######################### Begin to DeployCeph Now! #########################" 
-TEMP=`getopt -o NWD: --long no-purge,withtranscode,diskprofile: -- "$@"`
+TEMP=`getopt -o NWD: --long no-purge,diskprofile: -- "$@"`
 echo $TEMP
 eval set -- "$TEMP"
 diskprofile=""
 nopurge="false"
-withtranscode="false"
 while true
 do
         case "$1" in
                 -N|--no-purge)
                         nopurge="true"
-                        shift ;;
-                -W|--withtranscode)
-                        withtranscode="true"
                         shift ;;
                 -D|--diskprofile)
                         if [ $2 != "raid0" ] && [ $2 != "noraid" ]
@@ -65,34 +61,8 @@ rm -rf ceph.*
 area=`getConf area`
 mroom=`getConf mroom`
 storage=`getConf storage`
-ishammer=`getConf ishammer`
 
-loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopurge="$nopurge"\ndiskprofile="$diskprofile"\nwithtranscodei="$withtranscode"\n"
-
-#repo is already well-defined
-## Change ceph repo ##
-#if [[ $centosversion == 7 ]]
-#then
-#	sed -i "s/ceph\/el6/el7\/ceph/g" ./deployFile/ceph.repo
-#elif [[ $centosversion == 6 ]]
-#then
-#	sed -i "s/el7\/ceph/ceph\/el6/g" ./deployFile/ceph.repo
-#fi
-##
-##if [[ $centosversion == 7 ]]
-##then
-##        sed -i "s/ceph\/el6/el7\/ceph/g" /root/.cephdeploy.conf
-##elif [[ $centosversion == 6 ]]
-##then
-##        sed -i "s/el7\/ceph/ceph\/el6/g" /root/.cephdeploy.conf
-##fi
-#
-#if [[ $ishammer == "true" ]]
-#then
-#	sed -i "s/\/ceph\//\/ceph-hammer\//g" /root/.cephdeploy.conf
-#else
-#	sed -i "s/\/ceph-hammer\//\/ceph\//g" /root/.cephdeploy.conf
-#fi
+loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopurge="$nopurge"\ndiskprofile="$diskprofile"\n"
 
 cp ./deployFile/.cephdeploy.conf /root/.cephdeploy.conf
 
@@ -133,7 +103,7 @@ cp fabfile.py.bak fabfile.py
 rm ./ceph.bootstrap-mds.keyring ./ceph.bootstrap-osd.keyring ./ceph.client.admin.keyring ./ceph.conf ceph.mon.keyring -rf
 
 ## Add ssh auth
-#fab push_key -P
+fab push_key 
 
 ## Remove StrictHostKeyChecking
 grep "StrictHostKeyChecking no" /etc/ssh/ssh_config
@@ -143,7 +113,6 @@ fi
 
 ## Test Connection
 fab testecho 
-fab tempOS7handler -P
 
 ## Change HostName
 fab changeHostAndRepo -P
@@ -158,19 +127,13 @@ then
         echo "Purging End"
 	sleep 5
 fi
-#ceph-deploy purge $osdnamelist
-#ceph-deploy purgedata $osdnamelist        
+
 
 ## Create new Monitor Conf
 ceph-deploy new $monsnamelist
 
-## Create new OSD Conf
-if [[ $ishammer == "true" ]]
-then 
-	cat ./deployFile/ceph-hammer.conf.ex >> ./ceph.conf
-else
-	cat ./deployFile/ceph.conf.ex >> ./ceph.conf
-fi
+## Append new OSD Conf
+cat ./deployFile/ceph.conf.ex >> ./ceph.conf
 if [[ $diskprofile == "raid0" ]]
 then
 	loginfo "Add RAID attr to ceph.conf!"
@@ -178,12 +141,11 @@ then
 fi
 
 ## Install ceph rpm 
-#ceph-deploy install $osdnamelist
 fab InstallCeph -P
 
 ## Install mon
 ceph-deploy mon create
-echo "Mon Created,wait..."
+echo "Mon Created, waiting for monitor quorum......"
 sleep 10
 
 cat /etc/ceph/ceph.client.admin.keyring
@@ -197,14 +159,15 @@ ceph-deploy gatherkeys $monsnamelist
 
 ## Install OSD
 fab prepareDisks -P -w
-if [[ $withtranscode == "true" ]]
-then 
-	loginfo "Begin to deploy OSDs withTranscode!"
-	fab DeployOSDsWithTranscode -P 
-else
-	loginfo "Begin to deploy OSDs !"
-	fab DeployOSDs -P
-fi
+loginfo "Begin to deploy OSDs withTranscode!"
+fab DeployOSDs -P 
+
+## add extra ceph.conf configurations to ceph.conf(osd crush update on start = false)
+fab updatecephconf -P
 ## Copy CephConf
 fab CopyCephConf -P
+
+fab updatentpconfig -P
+fab updatefstab -P
+fab startdiamond -P
 loginfo "######################### DeployCeph Finish ! #########################"

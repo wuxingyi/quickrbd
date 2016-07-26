@@ -1,0 +1,5 @@
+[watchtv]
+gpgcheck=0
+enabled=1
+name=WatchTV for RHEL/ CentOS $releasever - $basearch
+baseurl=http://s3s.lecloud.com/watchtv/el7/update/

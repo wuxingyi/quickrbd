@@ -37,9 +37,8 @@ storage=`getConf storage`
 centosversion=`getConf centosversion`
 
 confservername=""
-withtranscode="false"
 regex_ip="^(2[0-4][0-9]|25[0-5]|1[0-9][0-9]|[1-9][0-9]|[1-9])(\.(2[0-4][0-9]|25[0-5]|1[0-9][0-9]|[1-9][0-9]|[1-9])){3}$"
-TEMP=`getopt -o NWD:c:s:H: --long hostname:,no-purge,withtranscode,confserver:,osdserver:,diskprofile: -- "$@"`
+TEMP=`getopt -o NWD:c:s:H: --long hostname:,no-purge,confserver:,osdserver:,diskprofile: -- "$@"`
 eval set -- "$TEMP"
 while true
 do
@@ -49,9 +48,6 @@ do
 			shift 2;;
 		-N|--no-purge)
                         nopurge="true"
-                        shift ;;
-                -W|--withtranscode)
-                        withtranscode="true"
                         shift ;;
                 -c|--confserver)
 			if [[ `checkIP $2` -eq  1 ]]
@@ -94,34 +90,17 @@ rm -rf ceph.*
 if [[ $osdserver == "" ]] || [[ $confserver == "" ]] || [[ $diskprofile == "" ]]
 then
 	loginfo "Lack of Arguments ! EXIT !"
-	echo -e "Lack of Arguments !\nUsage: sh expend-osd.sh -c CONFSERVER -s OSDSERVER -D [raid0|noraid] [-N|--no-purge] [-W|--withtrancode] [-H|--hostname MONHOSTNAME]"
+	echo -e "Lack of Arguments !\nUsage: sh expend-osd.sh -c CONFSERVER -s OSDSERVER -D [raid0|noraid] [-N|--no-purge] [-H|--hostname MONHOSTNAME]"
 	exit 1
 fi
 echo "confServerIP: "$confserver" osdServerIP: "$osdserver
 loginfo "confServerIP: "$confServerIP" osdServerIP: "$osdServerIP
-loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopurge="$nopurge"\ndiskprofile="$diskprofile"\nwithtranscodei="$withtranscode
+loginfo "All arguments:\narea="$area"\nmroom="$mroom"\nstorage="$storage"\nnopurge="$nopurge"\ndiskprofile="$diskprofile
 osdservername=`toHostname $osdserver`
 if [[ $confservername == "" ]]
 then
 	confservername=`toHostname $confserver`
 fi
-
-## Change ceph repo ##
-#if [[ $centosversion == 7 ]]
-#then
-#        sed -i "s/ceph\/el6/el7\/ceph/g" ./deployFile/ceph.repo
-#elif [[ $centosversion == 6 ]]
-#then
-#        sed -i "s/el7\/ceph/ceph\/el6/g" ./deployFile/ceph.repo
-#fi
-#
-#if [[ $centosversion == 7 ]]
-#then
-#        sed -i "s/ceph\/el6/el7\/ceph/g" /root/.cephdeploy.conf
-#elif [[ $centosversion == 6 ]]
-#then
-#        sed -i "s/el7\/ceph/ceph\/el6/g" /root/.cephdeploy.conf
-#fi
 
 ## Add hostname to /etc/hosts
 echo $osdserver" "$osdservername >> /etc/hosts
@@ -142,7 +121,7 @@ cp fabfile.py.bak fabfile.py
 fab changeHostAndRepo -P -H $osdserver
 
 ## Add ssh auth
-#fab push_key -P -H $osdservername
+fab push_key -H $osdservername
 
 ##Clean OriginData
 if [[ $nopurge == "false" ]]
@@ -159,16 +138,16 @@ ceph-deploy gatherkeys $confservername
 
 scp root@$confservername:/etc/ceph/ceph.conf ./
 
+sed -i '/osd crush update on start = False/d' ceph.conf
+
 ## Install OSD
 fab prepareDisks -P -H $osdservername
-if [[ $withtranscode == "true" ]]
-then
-        loginfo "Begin to deploy OSDs withTranscode!"
-        fab DeployOSDsWithTranscode -P -H $osdservername
-else
-        loginfo "Begin to deploy OSDs !"
-        fab DeployOSDs -P -H $osdservername
-fi
+loginfo "Begin to deploy OSDs !"
+fab DeployOSDs -P -H $osdservername
 
 ## Copy CephConf
 fab CopyCephConf -P -H $osdservername
+
+fab updatentpconfig -P -H $osdservername
+fab updatefstab -P -H $osdservername
+fab startdiamond -P -H $osdservername
