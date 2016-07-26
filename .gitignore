@@ -1,0 +1,6 @@
+*.keyring
+*.log
+fabfile.py*
+ceph.conf
+monhostnames
+osdhostnames
