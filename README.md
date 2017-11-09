@@ -68,3 +68,9 @@ sh expend-osd.sh [-c|--confserver] CONFSERVER [-s|--osdserver] OSDSERVER [-D|--d
 	- 如果是干净环境，加上此参数，可不做purge data的操作
 - -H|--hostname MONHOSTNAME
 	- 如果已有集群monitor服务器另有hostname，需添加此参数
+
+
+### 获取client.admin的方式  
+```
+/usr/bin/ceph --connect-timeout=25 --cluster=ceph --name mon. --keyring=/var/lib/ceph/mon/ceph-ceph254/keyring auth get client.admin
+```
