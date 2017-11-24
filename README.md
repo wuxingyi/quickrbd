@@ -74,3 +74,8 @@ sh expend-osd.sh [-c|--confserver] CONFSERVER [-s|--osdserver] OSDSERVER [-D|--d
 ```
 /usr/bin/ceph --connect-timeout=25 --cluster=ceph --name mon. --keyring=/var/lib/ceph/mon/ceph-ceph254/keyring auth get client.admin
 ```
+另外更聪明的方式是，直接通过gatherkeys向monitor要，因为monitor可能还并没有生成client.admin这个key:
+```
+ceph-deploy gatherkeys ceph254
+```
+
