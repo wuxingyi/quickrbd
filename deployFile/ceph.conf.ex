@@ -1,5 +1,4 @@
 mon_osd_down_out_interval = 900
-mon_osd_min_down_reporters = 6
 
 [osd]
 filestore_journal_writeahead = True
