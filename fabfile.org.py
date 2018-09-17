@@ -29,11 +29,10 @@ def changeHostname(area,mroom,storage):
     run('/tmp/hostnamectl.sh %s %s %s' % (area, mroom, storage))
 
 def updateRepoAddress():
-    put('./deployFile/resolv.conf','/etc/resolv.conf')
+    #put('./deployFile/resolv.conf','/etc/resolv.conf')
     run('rm /etc/yum.repos.d/letv-pkgs.repo /etc/yum.repos.d/CentOS.repo -f')
     put('./deployFile/CentOS-Base.repo','/etc/yum.repos.d/CentOS-Base.repo')
     put("./deployFile/ceph.repo","/etc/yum.repos.d/ceph.repo")
-    put("./deployFile/watchtv.repo","/etc/yum.repos.d/watchtv.repo")
 
 def testecho():
     run('rpm -qa|grep redhat-lsb-core || yum install redhat-lsb-core -y')
@@ -86,11 +85,3 @@ def updatecephconf():
 def updatentpconfig():
     put('./deployFile/ntpd', '/etc/sysconfig/ntpd')
     put('./deployFile/ntpd.service', '/etc/systemd/system/multi-user.target.wants/ntpd.service')
-
-def updatefstab():
-    run('sed -i "\/data\/slot/d" /etc/fstab')
-
-def startdiamond():
-    run('yum install diamond -y')
-    put('./deployFile/diamond.conf', '/etc/diamond/diamond.conf')
-    run('/etc/init.d/diamond start')

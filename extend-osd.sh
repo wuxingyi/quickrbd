@@ -149,5 +149,3 @@ fab DeployOSDs -P -H $osdservername
 fab CopyCephConf -P -H $osdservername
 
 fab updatentpconfig -P -H $osdservername
-fab updatefstab -P -H $osdservername
-fab startdiamond -P -H $osdservername

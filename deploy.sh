@@ -51,7 +51,7 @@ done
 if [[ $diskprofile == "" ]]
 then
         echo "You should assign -D or --diskprofile ! Arg of diskprofile should be [raid0|noraid] !"
-	loginfo "You should assign -D or --diskprofile ! Arg of diskprofile should be [raid0|noraid] !"
+	    loginfo "You should assign -D or --diskprofile ! Arg of diskprofile should be [raid0|noraid] !"
         loginfo "Deploy Error! Exit!"
         exit 1;
 fi
@@ -148,13 +148,14 @@ ceph-deploy mon create
 echo "Mon Created, waiting for monitor quorum......"
 sleep 10
 
-cat /etc/ceph/ceph.client.admin.keyring
-if [[ `echo $?` != 0 ]]
-then
-	cat /etc/ceph/ceph.client.admin.keyring
-	sleep 10
-fi
+#cat /etc/ceph/ceph.client.admin.keyring
+#if [[ `echo $?` != 0 ]]
+#then
+#	cat /etc/ceph/ceph.client.admin.keyring
+#	sleep 10
+#fi
 ## GatherKeys
+sleep 20
 ceph-deploy gatherkeys $monsnamelist
 
 ## Install OSD
@@ -168,6 +169,4 @@ fab updatecephconf -P
 fab CopyCephConf -P
 
 fab updatentpconfig -P
-fab updatefstab -P
-fab startdiamond -P
 loginfo "######################### DeployCeph Finish ! #########################"
