@@ -1,6 +1,6 @@
 [letv-ceph]
 name=Letv ceph
-baseurl=http://s3s.lecloud.com/ceph-jewel/el7/update
+baseurl=http://10.70.68.59/centos/7.5.1804/storage/x86_64/ceph-jewel/
 enabled=1
 gpgcheck=0
 type=repo-md
