@@ -26,8 +26,7 @@ priority=1
 - 之后执行：
 ```
 yum install fabric ceph-deploy -y
-git pull git@git.letv.cn:cuixiaotian/ceph-seed.git
-git checkout centos7-jewel
+git clone https://github.com/wuxingyi/quickrbd # latest code for deployment
 ```
 
 ## 利用 Ceph-Seed 快速部署Ceph集群
@@ -78,4 +77,3 @@ sh expend-osd.sh [-c|--confserver] CONFSERVER [-s|--osdserver] OSDSERVER [-D|--d
 ```
 ceph-deploy gatherkeys ceph254
 ```
-
